@@ -16,36 +16,106 @@ limitations under the License.
 package cmd
 
 import (
+	"encoding/hex"
 	"fmt"
-
+	"github.com/mitchellh/go-homedir"
+	"github.com/niels1286/nuls-go-sdk/account"
+	txprotocal "github.com/niels1286/nuls-go-sdk/tx/protocal"
+	"github.com/niels1286/nuls-go-sdk/utils/seria"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"go/token"
+	"os"
 )
+
+var password string
+var keystore string
+var prikeyHex string
 
 // signtxCmd represents the signtx command
 var signtxCmd = &cobra.Command{
 	Use:   "signtx",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "sign a transaction",
+	Long:  `对多签交易进行签名，当签名数量足够时，自动将交易广播到网络中`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("signtx called")
+		if "" == txHex {
+			fmt.Println("txHex is valid.")
+			return
+		}
+		if "" == prikeyHex && (keystore == "" || "" == password) {
+			fmt.Println("need prikey")
+			return
+		}
+		nulsAccount, err := getAccount()
+		if err != nil {
+			fmt.Println("account wrong.")
+			return
+		}
+		txBytes, err := hex.DecodeString(txHex)
+		if err != nil {
+			fmt.Println("txhex wrong.")
+			return
+		}
+		tx := txprotocal.ParseTransactionByReader(seria.NewByteBufReader(txBytes, 0))
+		//todo 判断账户是否正确
+		//签名
+		//判断是否需要广播
+		//广播
 	},
+}
+
+func getAccount() (*account.Account, error) {
+	if "" != prikeyHex {
+		nulsAccount, err := account.GetAccountFromPrkey(prikeyHex, account.NULSChainId, account.NULSPrefix)
+		if err != nil {
+			return nil, err
+		}
+		return nulsAccount, nil
+	} else {
+
+		ks := account.KeyStore{
+			Address:             viper.GetString("Address"),
+			EncryptedPrivateKey: viper.GetString("EncryptedPrivateKey"),
+			Pubkey:              viper.GetString("Pubkey"),
+		}
+		return ks.GetAccount(password, account.NULSChainId, account.NULSPrefix)
+	}
 }
 
 func init() {
 	rootCmd.AddCommand(signtxCmd)
+	signtxCmd.Flags().StringVarP(&txHex, "txhex", "t", "", "Transaction serialization data in hexadecimal string format")
+	signtxCmd.MarkFlagRequired("txhex")
 
-	// Here you will define your flags and configuration settings.
+	signtxCmd.Flags().StringVarP(&prikeyHex, "prikey", "p", "", "签名使用的私钥，程序将自动验证其是否属于多签成员")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// signtxCmd.PersistentFlags().String("foo", "", "A help for foo")
+	signtxCmd.PersistentFlags().StringVar(&keystore, "keystore", "", "当不是用prikey时，可以指定同目录的keystore文件名")
+	signtxCmd.Flags().StringVarP(&password, "password", "w", "", "使用keystore时，需要使用密码")
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// signtxCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+// initConfig reads in config file and ENV variables if set.
+func initConfig() {
+	if keystore != "" {
+		// Use config file from the flag.
+		viper.SetConfigFile(keystore)
+	} else {
+		// Find home directory.
+		home, err := homedir.Dir()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		// Search config in home directory with name ".nmt" (without extension).
+		viper.AddConfigPath(home)
+		viper.SetConfigName(".nmt")
+	}
+
+	viper.AutomaticEnv() // read in environment variables that match
+
+	// If a config file is found, read it in.
+	if err := viper.ReadInConfig(); err == nil {
+		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	}
 }
