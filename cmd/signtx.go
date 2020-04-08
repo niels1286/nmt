@@ -24,7 +24,6 @@ import (
 	"github.com/niels1286/nuls-go-sdk/utils/seria"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"go/token"
 	"os"
 )
 
@@ -59,8 +58,37 @@ var signtxCmd = &cobra.Command{
 		tx := txprotocal.ParseTransactionByReader(seria.NewByteBufReader(txBytes, 0))
 		//todo 判断账户是否正确
 		//签名
+		hash, err := tx.GetHash().Serialize()
+		if err != nil {
+			fmt.Println("txhex wrong.")
+			return
+		}
+		signData, err := nulsAccount.Sign(hash)
+		if err != nil {
+			fmt.Println("sign failed.")
+			return
+		}
+		//将签名组装到交易中
+		txSign := txprotocal.MultiAddressesSignData{
+			M:              0,
+			PubkeyList:     nil,
+			CommonSignData: txprotocal.CommonSignData{},
+		}
+		txSign.Parse(seria.NewByteBufReader(tx.SignData, 0))
+		sign := txprotocal.P2PHKSignature{
+			SignValue: signData,
+			PublicKey: nulsAccount.GetPubKeyBytes(true),
+		}
+		txSign.Signatures = append(txSign.Signatures, sign)
 		//判断是否需要广播
+
 		//广播
+		resultBytes, err := tx.Serialize()
+		if err != nil {
+			fmt.Println("sign failed.")
+			return
+		}
+		fmt.Println("签名完成后的txHex:" + hex.EncodeToString(resultBytes))
 	},
 }
 
