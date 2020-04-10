@@ -121,7 +121,11 @@ func getTxInfo(tx *txprotocal.Transaction) *TxInfo {
 	}
 	message += "To:\n"
 	for _, to := range cd.Tos {
-		message += "\t" + account.GetStringAddress(to.Address, account.NULSPrefix) + "(" + fmt.Sprintf("%d", to.AssetsChainId) + "-" + fmt.Sprintf("%d", to.AssetsChainId) + ") :: " + mathutils.GetStringAmount(to.Amount, 8) + "\n"
+		lock := fmt.Sprintf("%d", to.LockValue)
+		if to.LockValue == uint64(18446744073709551615) {
+			lock = "-1"
+		}
+		message += "\t" + account.GetStringAddress(to.Address, account.NULSPrefix) + "(" + fmt.Sprintf("%d", to.AssetsChainId) + "-" + fmt.Sprintf("%d", to.AssetsChainId) + ") :: " + mathutils.GetStringAmount(to.Amount, 8) + " (lock:" + lock + ")\n"
 	}
 
 	return &TxInfo{
