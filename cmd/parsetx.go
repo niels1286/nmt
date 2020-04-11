@@ -33,6 +33,7 @@ type TxInfo struct {
 	TxType   string
 	TxData   map[string]string
 	CoinData string
+	Remark   string
 }
 
 var TypeMap = map[int]string{
@@ -50,7 +51,7 @@ func (ti *TxInfo) String() string {
 	for key, val := range ti.TxData {
 		bus += "\t" + key + " : " + val + "\n"
 	}
-	value := fmt.Sprintf("===========tx info============\nhash:%s\ntype:%s\n%s%s", ti.Hash, ti.TxType, bus, ti.CoinData)
+	value := fmt.Sprintf("===========tx info============\nhash:%s\ntype:%s\n%s%s\nRemark : %s", ti.Hash, ti.TxType, bus, ti.CoinData, ti.Remark)
 	return value
 }
 
@@ -70,7 +71,6 @@ var parsetxCmd = &cobra.Command{
 			return
 		}
 		tx := txprotocal.ParseTransactionByReader(seria.NewByteBufReader(txBytes, 0))
-		fmt.Println(tx)
 
 		info := getTxInfo(tx)
 		fmt.Println(info.String())
@@ -94,7 +94,7 @@ func getTxInfo(tx *txprotocal.Transaction) *TxInfo {
 		txData["packingAddress"] = account.GetStringAddress(agent.PackingAddress, account.NULSPrefix)
 		txData["rewardAddress"] = account.GetStringAddress(agent.RewardAddress, account.NULSPrefix)
 		txData["amount"] = fmt.Sprintf("%d", agent.Amount.Uint64()/100000000)
-		txData["commissionRate"] = fmt.Sprintf("%d%", agent.CommissionRate)
+		txData["commissionRate"] = fmt.Sprintf("%d", agent.CommissionRate)
 	case txprotocal.TX_TYPE_STOP_AGENT:
 		info := &txdata.StopAgent{}
 		info.Parse(seria.NewByteBufReader(tx.Extend, 0))
@@ -117,7 +117,8 @@ func getTxInfo(tx *txprotocal.Transaction) *TxInfo {
 	cd.Parse(seria.NewByteBufReader(tx.CoinData, 0))
 	var message = "From:\n"
 	for _, from := range cd.Froms {
-		message += "\t" + account.GetStringAddress(from.Address, account.NULSPrefix) + "(" + fmt.Sprintf("%d", from.AssetsChainId) + "-" + fmt.Sprintf("%d", from.AssetsChainId) + ") :: " + mathutils.GetStringAmount(from.Amount, 8) + "\n"
+		nonce := hex.EncodeToString(from.Nonce)
+		message += "\t" + account.GetStringAddress(from.Address, account.NULSPrefix) + "(" + fmt.Sprintf("%d", from.AssetsChainId) + "-" + fmt.Sprintf("%d", from.AssetsChainId) + ") (" + nonce + "):: " + mathutils.GetStringAmount(from.Amount, 8) + "\n"
 	}
 	message += "To:\n"
 	for _, to := range cd.Tos {
@@ -133,6 +134,7 @@ func getTxInfo(tx *txprotocal.Transaction) *TxInfo {
 		TxType:   typeStr,
 		TxData:   txData,
 		CoinData: message,
+		Remark:   string(tx.Remark),
 	}
 }
 
