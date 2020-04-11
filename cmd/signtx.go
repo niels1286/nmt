@@ -19,12 +19,14 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/mitchellh/go-homedir"
+	"github.com/niels1286/nmt/utils"
 	"github.com/niels1286/nuls-go-sdk/account"
 	txprotocal "github.com/niels1286/nuls-go-sdk/tx/protocal"
 	"github.com/niels1286/nuls-go-sdk/utils/seria"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
+	"reflect"
 )
 
 var password string
@@ -56,7 +58,26 @@ var signtxCmd = &cobra.Command{
 			return
 		}
 		tx := txprotocal.ParseTransactionByReader(seria.NewByteBufReader(txBytes, 0))
-		//todo 判断账户是否正确
+		// 判断账户是否正确
+		//将签名组装到交易中
+		txSign := txprotocal.MultiAddressesSignData{
+			M:              0,
+			PubkeyList:     nil,
+			CommonSignData: txprotocal.CommonSignData{},
+		}
+		txSign.Parse(seria.NewByteBufReader(tx.SignData, 0))
+		ok := false
+		for _, pk := range txSign.PubkeyList {
+			address := account.GetAddressByPubBytes(pk, account.NULSChainId, account.NormalAccountType, account.NULSPrefix)
+			if reflect.DeepEqual(address, nulsAccount.AddressBytes) {
+				ok = true
+				break
+			}
+		}
+		if !ok {
+			fmt.Println("The address is not necessary")
+			return
+		}
 		//签名
 		hash, err := tx.GetHash().Serialize()
 		if err != nil {
@@ -68,27 +89,35 @@ var signtxCmd = &cobra.Command{
 			fmt.Println("sign failed.")
 			return
 		}
-		//将签名组装到交易中
-		txSign := txprotocal.MultiAddressesSignData{
-			M:              0,
-			PubkeyList:     nil,
-			CommonSignData: txprotocal.CommonSignData{},
-		}
-		txSign.Parse(seria.NewByteBufReader(tx.SignData, 0))
+
 		sign := txprotocal.P2PHKSignature{
 			SignValue: signData,
 			PublicKey: nulsAccount.GetPubKeyBytes(true),
 		}
 		txSign.Signatures = append(txSign.Signatures, sign)
-		//判断是否需要广播
-
-		//广播
+		tx.SignData, err = txSign.Serialize()
+		if err != nil {
+			fmt.Println("sign failed.")
+			return
+		}
 		resultBytes, err := tx.Serialize()
 		if err != nil {
 			fmt.Println("sign failed.")
 			return
 		}
-		fmt.Println("签名完成后的txHex:" + hex.EncodeToString(resultBytes))
+		//判断是否需要广播
+		if len(txSign.Signatures) >= int(txSign.M) {
+			sdk := utils.GetOfficalSdk()
+			hash, err := sdk.BroadcastTx(resultBytes)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			fmt.Println("Success!\ntx hash : " + hash)
+			return
+		} else {
+			fmt.Println("Success!\n签名完成后的txHex:" + hex.EncodeToString(resultBytes))
+		}
 	},
 }
 

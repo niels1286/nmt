@@ -73,6 +73,8 @@ github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/niels1286/nuls-go-sdk v0.0.0-20200408140947-6f26f54602bd h1:8/kRWsErFuQEnKRFrd7e7iBNQ0+vRI7K+cHpDmeFYDU=
 github.com/niels1286/nuls-go-sdk v0.0.0-20200408140947-6f26f54602bd/go.mod h1:6M/5jPd0tnOLQSdum0MaxuNyydsGRbKPYTzwdUebghE=
+github.com/niels1286/nuls-go-sdk v0.0.0-20200411075931-2c6a5ce50a15 h1:oAAaOh8rGTokjSMNEH/w2aLHxpOxBu0tlVt8qsmVlds=
+github.com/niels1286/nuls-go-sdk v0.0.0-20200411075931-2c6a5ce50a15/go.mod h1:6M/5jPd0tnOLQSdum0MaxuNyydsGRbKPYTzwdUebghE=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
 github.com/pelletier/go-toml v1.2.0 h1:T5zMGML61Wp+FlcbWjRDT7yAxhJNAiPPLOFECq181zc=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
