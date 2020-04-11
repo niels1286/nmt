@@ -23,10 +23,10 @@ import (
 	txprotocal "github.com/niels1286/nuls-go-sdk/tx/protocal"
 	"github.com/spf13/cobra"
 	"math/big"
+	"strings"
 	"time"
 )
 
-var from string
 var to string
 var amount float64
 var remark string
@@ -52,6 +52,20 @@ var transferCmd = &cobra.Command{
 		val.SetUint64(x)
 		fromVal := big.NewInt(100000)
 		fromVal.Add(fromVal, val)
+		if m < 1 || m > 15 {
+			fmt.Println("m value valid")
+			return
+		}
+		pkArray := strings.Split(pks, ",")
+		if len(pkArray) < m {
+			fmt.Println("Incorrect public keys")
+			return
+		}
+		from := CreateAddress(m, pkArray)
+		if "" == from {
+			fmt.Println("")
+			return
+		}
 		nonce := GetNonce(from)
 		from1 := txprotocal.CoinFrom{
 			Coin: txprotocal.Coin{
@@ -82,6 +96,25 @@ var transferCmd = &cobra.Command{
 			fmt.Println(err.Error())
 			return
 		}
+		publicKeys := [][]byte{}
+		for _, pk := range pkArray {
+			bytes, err := hex.DecodeString(pk)
+			if err != nil {
+				fmt.Println("public key not right.")
+				return
+			}
+			publicKeys = append(publicKeys, bytes)
+		}
+		txSign := txprotocal.MultiAddressesSignData{
+			M:              uint8(m),
+			PubkeyList:     publicKeys,
+			CommonSignData: txprotocal.CommonSignData{},
+		}
+		tx.SignData, err = txSign.Serialize()
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
 		txBytes, err := tx.Serialize()
 		if err != nil {
 			fmt.Println(err.Error())
@@ -108,8 +141,12 @@ func GetNonce(address string) []byte {
 
 func init() {
 	rootCmd.AddCommand(transferCmd)
-	transferCmd.Flags().StringVarP(&from, "form", "f", "", "转出地址")
-	transferCmd.MarkFlagRequired("from")
+
+	transferCmd.Flags().IntVarP(&m, "m", "m", 0, "发起交易的最小签名个数")
+	transferCmd.Flags().StringVarP(&pks, "publickeys", "p", "", "多签地址的成员公钥，以','分隔不同的公钥")
+	transferCmd.MarkFlagRequired("m")
+	transferCmd.MarkFlagRequired("publickeys")
+
 	transferCmd.Flags().StringVarP(&to, "to", "t", "", "转入地址")
 	transferCmd.MarkFlagRequired("to")
 	transferCmd.Flags().Float64VarP(&amount, "amount", "a", 0, "金额，到账数量，以NULS为单位")

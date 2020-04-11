@@ -40,9 +40,15 @@ var createCmd = &cobra.Command{
 			fmt.Println("Incorrect public keys")
 			return
 		}
-		address := account.CreateMultiAddress(account.NULSChainId, uint8(m), pkArray, account.NULSPrefix)
+		address := CreateAddress(m, pkArray)
 		fmt.Println("Operation Successed.\naddress:", address)
 	},
+}
+
+func CreateAddress(m int, pks []string) string {
+
+	address := account.CreateMultiAddress(account.NULSChainId, uint8(m), pks, account.NULSPrefix)
+	return address
 }
 
 func init() {
@@ -51,5 +57,4 @@ func init() {
 	createCmd.Flags().StringVarP(&pks, "publickeys", "p", "", "多签地址的成员公钥，以','分隔不同的公钥")
 	createCmd.MarkFlagRequired("m")
 	createCmd.MarkFlagRequired("publickeys")
-
 }
