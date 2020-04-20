@@ -46,12 +46,6 @@ var createCmd = &cobra.Command{
 	},
 }
 
-func CreateAddress(m int, pks []string) string {
-
-	address := account.CreateMultiAddress(cfg.DefaultChainId, uint8(m), pks, cfg.DefaultAddressPrefix)
-	return address
-}
-
 func init() {
 	rootCmd.AddCommand(createCmd)
 	createCmd.Flags().IntVarP(&m, "m", "m", 0, "发起交易的最小签名个数")

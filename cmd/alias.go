@@ -19,14 +19,12 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/niels1286/nmt/cfg"
+	"github.com/niels1286/nmt/utils"
 	"github.com/niels1286/nuls-go-sdk/account"
 	txprotocal "github.com/niels1286/nuls-go-sdk/tx/protocal"
 	"github.com/niels1286/nuls-go-sdk/tx/txdata"
-	"math/big"
-	"strings"
-	"time"
-
 	"github.com/spf13/cobra"
+	"strings"
 )
 
 var alias string
@@ -39,89 +37,21 @@ var aliasCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		amount = 1
 		to = cfg.BlackHoleAddress
-
-		tx := txprotocal.Transaction{
-			TxType:   txprotocal.TX_TYPE_ACCOUNT_ALIAS,
-			Time:     uint32(time.Now().Unix()),
-			Remark:   []byte(remark),
-			Extend:   nil,
-			CoinData: nil,
-			SignData: nil,
-		}
-		value := big.NewFloat(amount)
-		value = value.Mul(value, big.NewFloat(100000000))
-		x, _ := value.Uint64()
-		val := new(big.Int)
-		val.SetUint64(x)
-		fromVal := big.NewInt(100000)
-		fromVal.Add(fromVal, val)
-		if m < 1 || m > 15 {
-			fmt.Println("m value valid")
-			return
-		}
 		pkArray := strings.Split(pks, ",")
 		if len(pkArray) < m {
 			fmt.Println("Incorrect public keys")
 			return
 		}
-		from := CreateAddress(m, pkArray)
-		if "" == from {
-			fmt.Println("")
+		tx := utils.AssembleTx(m, pkArray, amount, "", to)
+		if tx == nil {
 			return
 		}
-		nonce := GetNonce(from)
-		from1 := txprotocal.CoinFrom{
-			Coin: txprotocal.Coin{
-				Address:       account.AddressStrToBytes(from),
-				AssetsChainId: cfg.DefaultChainId,
-				AssetsId:      1,
-				Amount:        fromVal,
-			},
-			Nonce:  nonce,
-			Locked: 0,
-		}
-		to1 := txprotocal.CoinTo{
-			Coin: txprotocal.Coin{
-				Address:       account.AddressStrToBytes(to),
-				AssetsChainId: cfg.DefaultChainId,
-				AssetsId:      1,
-				Amount:        val,
-			},
-			LockValue: 0,
-		}
-		coinData := txprotocal.CoinData{
-			Froms: []txprotocal.CoinFrom{from1},
-			Tos:   []txprotocal.CoinTo{to1},
-		}
-		var err error
-		tx.CoinData, err = coinData.Serialize()
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-		publicKeys := [][]byte{}
-		for _, pk := range pkArray {
-			bytes, err := hex.DecodeString(pk)
-			if err != nil {
-				fmt.Println("public key not right.")
-				return
-			}
-			publicKeys = append(publicKeys, bytes)
-		}
-		txSign := txprotocal.MultiAddressesSignData{
-			M:              uint8(m),
-			PubkeyList:     publicKeys,
-			CommonSignData: txprotocal.CommonSignData{},
-		}
-		tx.SignData, err = txSign.Serialize()
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		}
+		tx.TxType = txprotocal.TX_TYPE_ACCOUNT_ALIAS
 		aliasData := txdata.Alias{
-			Address: account.AddressStrToBytes(from),
+			Address: account.AddressStrToBytes(utils.CreateAddress(m, pkArray)),
 			Alias:   alias,
 		}
+		var err error
 		tx.Extend, err = aliasData.Serialize()
 		if err != nil {
 			fmt.Println(err.Error())
