@@ -18,6 +18,7 @@ package cmd
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/niels1286/nmt/cfg"
 	"github.com/niels1286/nuls-go-sdk/account"
 	txprotocal "github.com/niels1286/nuls-go-sdk/tx/protocal"
 	"github.com/niels1286/nuls-go-sdk/tx/txdata"
@@ -84,15 +85,15 @@ func getTxInfo(tx *txprotocal.Transaction) *TxInfo {
 	case txprotocal.TX_TYPE_DEPOSIT:
 		deposit := &txdata.Deposit{}
 		deposit.Parse(seria.NewByteBufReader(tx.Extend, 0))
-		txData["address"] = account.GetStringAddress(deposit.Address, account.NULSPrefix)
+		txData["address"] = account.GetStringAddress(deposit.Address, cfg.DefaultAddressPrefix)
 		txData["agentHash"] = deposit.AgentHash.String()
 		txData["amount"] = fmt.Sprintf("%d", deposit.Amount.Uint64()/100000000)
 	case txprotocal.TX_TYPE_REGISTER_AGENT:
 		agent := &txdata.Agent{}
 		agent.Parse(seria.NewByteBufReader(tx.Extend, 0))
-		txData["agentAddress"] = account.GetStringAddress(agent.AgentAddress, account.NULSPrefix)
-		txData["packingAddress"] = account.GetStringAddress(agent.PackingAddress, account.NULSPrefix)
-		txData["rewardAddress"] = account.GetStringAddress(agent.RewardAddress, account.NULSPrefix)
+		txData["agentAddress"] = account.GetStringAddress(agent.AgentAddress, cfg.DefaultAddressPrefix)
+		txData["packingAddress"] = account.GetStringAddress(agent.PackingAddress, cfg.DefaultAddressPrefix)
+		txData["rewardAddress"] = account.GetStringAddress(agent.RewardAddress, cfg.DefaultAddressPrefix)
 		txData["amount"] = fmt.Sprintf("%d", agent.Amount.Uint64()/100000000)
 		txData["commissionRate"] = fmt.Sprintf("%d", agent.CommissionRate)
 	case txprotocal.TX_TYPE_STOP_AGENT:
@@ -106,7 +107,7 @@ func getTxInfo(tx *txprotocal.Transaction) *TxInfo {
 	case txprotocal.TX_TYPE_ACCOUNT_ALIAS:
 		info := &txdata.Alias{}
 		info.Parse(seria.NewByteBufReader(tx.Extend, 0))
-		txData["address"] = account.GetStringAddress(info.Address, account.NULSPrefix)
+		txData["address"] = account.GetStringAddress(info.Address, cfg.DefaultAddressPrefix)
 		txData["alias"] = info.Alias
 	default:
 		if tx.Extend != nil {
@@ -118,7 +119,7 @@ func getTxInfo(tx *txprotocal.Transaction) *TxInfo {
 	var message = "From:\n"
 	for _, from := range cd.Froms {
 		nonce := hex.EncodeToString(from.Nonce)
-		message += "\t" + account.GetStringAddress(from.Address, account.NULSPrefix) + "(" + fmt.Sprintf("%d", from.AssetsChainId) + "-" + fmt.Sprintf("%d", from.AssetsChainId) + ") (" + nonce + "):: " + mathutils.GetStringAmount(from.Amount, 8) + "\n"
+		message += "\t" + account.GetStringAddress(from.Address, cfg.DefaultAddressPrefix) + "(" + fmt.Sprintf("%d", from.AssetsChainId) + "-" + fmt.Sprintf("%d", from.AssetsChainId) + ") (" + nonce + "):: " + mathutils.GetStringAmount(from.Amount, 8) + "\n"
 	}
 	message += "To:\n"
 	for _, to := range cd.Tos {
@@ -126,7 +127,7 @@ func getTxInfo(tx *txprotocal.Transaction) *TxInfo {
 		if to.LockValue == uint64(18446744073709551615) {
 			lock = "-1"
 		}
-		message += "\t" + account.GetStringAddress(to.Address, account.NULSPrefix) + "(" + fmt.Sprintf("%d", to.AssetsChainId) + "-" + fmt.Sprintf("%d", to.AssetsChainId) + ") :: " + mathutils.GetStringAmount(to.Amount, 8) + " (lock:" + lock + ")\n"
+		message += "\t" + account.GetStringAddress(to.Address, cfg.DefaultAddressPrefix) + "(" + fmt.Sprintf("%d", to.AssetsChainId) + "-" + fmt.Sprintf("%d", to.AssetsChainId) + ") :: " + mathutils.GetStringAmount(to.Amount, 8) + " (lock:" + lock + ")\n"
 	}
 
 	return &TxInfo{

@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/niels1286/nmt/cfg"
 	"github.com/niels1286/nuls-go-sdk/account"
 	"github.com/spf13/cobra"
 	"strings"
@@ -47,7 +48,7 @@ var createCmd = &cobra.Command{
 
 func CreateAddress(m int, pks []string) string {
 
-	address := account.CreateMultiAddress(account.NULSChainId, uint8(m), pks, account.NULSPrefix)
+	address := account.CreateMultiAddress(cfg.DefaultChainId, uint8(m), pks, cfg.DefaultAddressPrefix)
 	return address
 }
 

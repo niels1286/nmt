@@ -18,7 +18,8 @@ package cmd
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/niels1286/nuls-go-sdk"
+	"github.com/niels1286/nmt/cfg"
+	"github.com/niels1286/nmt/utils"
 	"github.com/niels1286/nuls-go-sdk/account"
 	txprotocal "github.com/niels1286/nuls-go-sdk/tx/protocal"
 	"github.com/spf13/cobra"
@@ -70,7 +71,7 @@ var transferCmd = &cobra.Command{
 		from1 := txprotocal.CoinFrom{
 			Coin: txprotocal.Coin{
 				Address:       account.AddressStrToBytes(from),
-				AssetsChainId: account.NULSChainId,
+				AssetsChainId: cfg.DefaultChainId,
 				AssetsId:      1,
 				Amount:        fromVal,
 			},
@@ -80,7 +81,7 @@ var transferCmd = &cobra.Command{
 		to1 := txprotocal.CoinTo{
 			Coin: txprotocal.Coin{
 				Address:       account.AddressStrToBytes(to),
-				AssetsChainId: account.NULSChainId,
+				AssetsChainId: cfg.DefaultChainId,
 				AssetsId:      1,
 				Amount:        val,
 			},
@@ -128,8 +129,8 @@ var transferCmd = &cobra.Command{
 }
 
 func GetNonce(address string) []byte {
-	sdk := nuls.NewNulsSdk("https://api.nuls.io/jsonrpc", "https://public1.nuls.io/", account.NULSChainId)
-	status, err := sdk.GetBalance(address, int(account.NULSChainId), 1)
+	sdk := utils.GetOfficalSdk()
+	status, err := sdk.GetBalance(address, int(cfg.DefaultChainId), 1)
 	if err != nil {
 		return nil
 	}

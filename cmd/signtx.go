@@ -19,6 +19,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/mitchellh/go-homedir"
+	"github.com/niels1286/nmt/cfg"
 	"github.com/niels1286/nmt/utils"
 	"github.com/niels1286/nuls-go-sdk/account"
 	txprotocal "github.com/niels1286/nuls-go-sdk/tx/protocal"
@@ -68,7 +69,7 @@ var signtxCmd = &cobra.Command{
 		txSign.Parse(seria.NewByteBufReader(tx.SignData, 0))
 		ok := false
 		for _, pk := range txSign.PubkeyList {
-			address := account.GetAddressByPubBytes(pk, account.NULSChainId, account.NormalAccountType, account.NULSPrefix)
+			address := account.GetAddressByPubBytes(pk, cfg.DefaultChainId, account.NormalAccountType, cfg.DefaultAddressPrefix)
 			if reflect.DeepEqual(address, nulsAccount.AddressBytes) {
 				ok = true
 				break
@@ -114,16 +115,15 @@ var signtxCmd = &cobra.Command{
 				return
 			}
 			fmt.Println("Success!\ntx hash : " + hash)
-			return
-		} else {
-			fmt.Println("Success!\n签名完成后的txHex:" + hex.EncodeToString(resultBytes))
 		}
+		fmt.Println("Success!\n签名完成后的txHex:" + hex.EncodeToString(resultBytes))
+
 	},
 }
 
 func getAccount() (*account.Account, error) {
 	if "" != prikeyHex {
-		nulsAccount, err := account.GetAccountFromPrkey(prikeyHex, account.NULSChainId, account.NULSPrefix)
+		nulsAccount, err := account.GetAccountFromPrkey(prikeyHex, cfg.DefaultChainId, cfg.DefaultAddressPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -135,7 +135,7 @@ func getAccount() (*account.Account, error) {
 			EncryptedPrivateKey: viper.GetString("EncryptedPrivateKey"),
 			Pubkey:              viper.GetString("Pubkey"),
 		}
-		return ks.GetAccount(password, account.NULSChainId, account.NULSPrefix)
+		return ks.GetAccount(password, cfg.DefaultChainId, cfg.DefaultAddressPrefix)
 	}
 }
 
