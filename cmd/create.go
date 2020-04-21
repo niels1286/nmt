@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/niels1286/nmt/cfg"
+	"github.com/niels1286/nmt/utils"
 	"github.com/niels1286/nuls-go-sdk/account"
 	"github.com/spf13/cobra"
 	"strings"
@@ -41,7 +42,7 @@ var createCmd = &cobra.Command{
 			fmt.Println("Incorrect public keys")
 			return
 		}
-		address := CreateAddress(m, pkArray)
+		address := utils.CreateAddress(m, pkArray)
 		fmt.Println("Operation Successed.\naddress:", address)
 	},
 }

@@ -35,6 +35,8 @@ var aliasCmd = &cobra.Command{
 	Short: "set alias",
 	Long:  `Set alias for quick transfer and node name display`,
 	Run: func(cmd *cobra.Command, args []string) {
+		//todo 验证别名格式及是否重复
+
 		amount = 1
 		to = cfg.BlackHoleAddress
 		pkArray := strings.Split(pks, ",")
@@ -42,7 +44,7 @@ var aliasCmd = &cobra.Command{
 			fmt.Println("Incorrect public keys")
 			return
 		}
-		tx := utils.AssembleTx(m, pkArray, amount, "", to)
+		tx := utils.AssembleTransferTx(m, pkArray, amount, "", to)
 		if tx == nil {
 			return
 		}

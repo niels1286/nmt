@@ -16,10 +16,10 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
+
+var agentHash string
 
 // depositCmd represents the deposit command
 var depositCmd = &cobra.Command{
@@ -27,20 +27,19 @@ var depositCmd = &cobra.Command{
 	Short: "委托",
 	Long:  `委托一笔资产到节点上`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("deposit called")
+
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(depositCmd)
+	depositCmd.Flags().IntVarP(&m, "m", "m", 0, "发起交易的最小签名个数")
+	depositCmd.MarkFlagRequired("m")
+	depositCmd.Flags().StringVarP(&pks, "publickeys", "p", "", "多签地址的成员公钥，以','分隔不同的公钥")
+	depositCmd.MarkFlagRequired("publickeys")
+	depositCmd.Flags().StringVarP(&pks, "agenthash", "h", "", "节点位移标识")
+	depositCmd.MarkFlagRequired("publickeys")
+	depositCmd.Flags().Float64VarP(&amount, "amount", "a", 0, "委托金额")
+	depositCmd.MarkFlagRequired("amount")
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// depositCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// depositCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

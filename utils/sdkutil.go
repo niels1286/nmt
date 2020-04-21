@@ -11,7 +11,6 @@ import (
 	"github.com/niels1286/nuls-go-sdk/account"
 	txprotocal "github.com/niels1286/nuls-go-sdk/tx/protocal"
 	"math/big"
-	"strings"
 	"time"
 )
 
@@ -19,7 +18,7 @@ func GetOfficalSdk() *nuls.NulsSdk {
 	return nuls.NewNulsSdk(cfg.APIServeURL, cfg.PublicSercServeURL, cfg.DefaultChainId)
 }
 
-func AssembleTx(m int, pkArray []string, amount float64, remark string, to string) *txprotocal.Transaction {
+func AssembleTransferTx(m int, pkArray []string, amount float64, remark string, to string) *txprotocal.Transaction {
 	tx := txprotocal.Transaction{
 		TxType:   txprotocal.TX_TYPE_ACCOUNT_ALIAS,
 		Time:     uint32(time.Now().Unix()),
