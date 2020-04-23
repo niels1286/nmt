@@ -18,7 +18,7 @@ func GetOfficalSdk() *nuls.NulsSdk {
 	return nuls.NewNulsSdk(cfg.APIServeURL, cfg.PublicSercServeURL, cfg.DefaultChainId)
 }
 
-func AssembleTransferTx(m int, pkArray []string, amount float64, remark string, to string) *txprotocal.Transaction {
+func AssembleTransferTx(m int, pkArray []string, amount float64, remark string, to string, lockValue uint64) *txprotocal.Transaction {
 	tx := txprotocal.Transaction{
 		TxType:   txprotocal.TX_TYPE_ACCOUNT_ALIAS,
 		Time:     uint32(time.Now().Unix()),
@@ -62,7 +62,7 @@ func AssembleTransferTx(m int, pkArray []string, amount float64, remark string, 
 			AssetsId:      1,
 			Amount:        val,
 		},
-		LockValue: 0,
+		LockValue: lockValue,
 	}
 	coinData := txprotocal.CoinData{
 		Froms: []txprotocal.CoinFrom{from1},

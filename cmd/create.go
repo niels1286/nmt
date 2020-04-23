@@ -17,9 +17,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/niels1286/nmt/cfg"
 	"github.com/niels1286/nmt/utils"
-	"github.com/niels1286/nuls-go-sdk/account"
 	"github.com/spf13/cobra"
 	"strings"
 )

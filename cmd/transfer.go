@@ -38,7 +38,7 @@ var transferCmd = &cobra.Command{
 			fmt.Println("Incorrect public keys")
 			return
 		}
-		tx := utils.AssembleTransferTx(m, pkArray, amount, remark, to)
+		tx := utils.AssembleTransferTx(m, pkArray, amount, remark, to, 0)
 		if tx == nil {
 			return
 		}
