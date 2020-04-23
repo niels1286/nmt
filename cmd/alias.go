@@ -44,7 +44,7 @@ var aliasCmd = &cobra.Command{
 			fmt.Println("Incorrect public keys")
 			return
 		}
-		tx := utils.AssembleTransferTx(m, pkArray, amount, "", to, 0)
+		tx := utils.AssembleTransferTx(m, pkArray, amount, "", to, 0, 0, nil)
 		if tx == nil {
 			return
 		}

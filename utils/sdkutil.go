@@ -18,7 +18,7 @@ func GetOfficalSdk() *nuls.NulsSdk {
 	return nuls.NewNulsSdk(cfg.APIServeURL, cfg.PublicSercServeURL, cfg.DefaultChainId)
 }
 
-func AssembleTransferTx(m int, pkArray []string, amount float64, remark string, to string, lockValue uint64) *txprotocal.Transaction {
+func AssembleTransferTx(m int, pkArray []string, amount float64, remark string, to string, fromLocked byte, toLockValue uint64, nonce []byte) *txprotocal.Transaction {
 	tx := txprotocal.Transaction{
 		TxType:   txprotocal.TX_TYPE_ACCOUNT_ALIAS,
 		Time:     uint32(time.Now().Unix()),
@@ -44,7 +44,9 @@ func AssembleTransferTx(m int, pkArray []string, amount float64, remark string, 
 		fmt.Println("")
 		return nil
 	}
-	nonce := GetNonce(from)
+	if nonce == nil {
+		nonce = GetNonce(from)
+	}
 	from1 := txprotocal.CoinFrom{
 		Coin: txprotocal.Coin{
 			Address:       account.AddressStrToBytes(from),
@@ -53,7 +55,7 @@ func AssembleTransferTx(m int, pkArray []string, amount float64, remark string, 
 			Amount:        fromVal,
 		},
 		Nonce:  nonce,
-		Locked: 0,
+		Locked: fromLocked,
 	}
 	to1 := txprotocal.CoinTo{
 		Coin: txprotocal.Coin{
@@ -62,7 +64,7 @@ func AssembleTransferTx(m int, pkArray []string, amount float64, remark string, 
 			AssetsId:      1,
 			Amount:        val,
 		},
-		LockValue: lockValue,
+		LockValue: toLockValue,
 	}
 	coinData := txprotocal.CoinData{
 		Froms: []txprotocal.CoinFrom{from1},
