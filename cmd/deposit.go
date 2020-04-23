@@ -36,7 +36,9 @@ var depositCmd = &cobra.Command{
 	Short: "委托",
 	Long:  `委托一笔资产到节点上`,
 	Run: func(cmd *cobra.Command, args []string) {
-
+		if amount < 2000 || amount > 500000 {
+			fmt.Println("委托金额不正确")
+		}
 		pkArray := strings.Split(pks, ",")
 		if len(pkArray) < m {
 			fmt.Println("Incorrect public keys")
@@ -92,7 +94,7 @@ func init() {
 	depositCmd.MarkFlagRequired("m")
 	depositCmd.Flags().StringVarP(&pks, "publickeys", "p", "", "多签地址的成员公钥，以','分隔不同的公钥")
 	depositCmd.MarkFlagRequired("publickeys")
-	depositCmd.Flags().StringVarP(&pks, "agenthash", "h", "", "节点位移标识")
+	depositCmd.Flags().StringVarP(&agentHash, "agenthash", "h", "", "节点位移标识")
 	depositCmd.MarkFlagRequired("publickeys")
 	depositCmd.Flags().Float64VarP(&amount, "amount", "a", 0, "委托金额")
 	depositCmd.MarkFlagRequired("amount")

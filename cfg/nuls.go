@@ -13,7 +13,7 @@ const BlackHoleAddress = "tNULSeBaMhZnRteniCy3UZqPjTbnWKBPHX1a5d"
 
 //const APIServeURL = "https://api.nuls.io/jsonrpc/"
 //const PublicSercServeURL = "https://public1.nuls.io"
-const APIServeURL = "http://192.168.1.145:18004/jsonrpc/"
+const APIServeURL = "http://beta.api.nuls.io/jsonrpc/"
 const PublicSercServeURL = "https://beta.wallet.nuls.io/api"
 
-const POCLockValue uint64 = 281474976710655
+const POCLockValue uint64 = 18446744073709551615

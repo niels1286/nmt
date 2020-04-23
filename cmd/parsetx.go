@@ -119,7 +119,7 @@ func getTxInfo(tx *txprotocal.Transaction) *TxInfo {
 	var message = "From:\n"
 	for _, from := range cd.Froms {
 		nonce := hex.EncodeToString(from.Nonce)
-		message += "\t" + account.GetStringAddress(from.Address, cfg.DefaultAddressPrefix) + "(" + fmt.Sprintf("%d", from.AssetsChainId) + "-" + fmt.Sprintf("%d", from.AssetsChainId) + ") (" + nonce + "):: " + mathutils.GetStringAmount(from.Amount, 8) + "\n"
+		message += "\t" + account.GetStringAddress(from.Address, cfg.DefaultAddressPrefix) + "(" + fmt.Sprintf("%d", from.AssetsChainId) + "-" + fmt.Sprintf("%d", from.AssetsId) + ") (" + nonce + "):: " + mathutils.GetStringAmount(from.Amount, 8) + "\n"
 	}
 	message += "To:\n"
 	for _, to := range cd.Tos {
@@ -127,7 +127,7 @@ func getTxInfo(tx *txprotocal.Transaction) *TxInfo {
 		if to.LockValue == uint64(18446744073709551615) {
 			lock = "-1"
 		}
-		message += "\t" + account.GetStringAddress(to.Address, cfg.DefaultAddressPrefix) + "(" + fmt.Sprintf("%d", to.AssetsChainId) + "-" + fmt.Sprintf("%d", to.AssetsChainId) + ") :: " + mathutils.GetStringAmount(to.Amount, 8) + " (lock:" + lock + ")\n"
+		message += "\t" + account.GetStringAddress(to.Address, cfg.DefaultAddressPrefix) + "(" + fmt.Sprintf("%d", to.AssetsChainId) + "-" + fmt.Sprintf("%d", to.AssetsId) + ") :: " + mathutils.GetStringAmount(to.Amount, 8) + " (lock:" + lock + ")\n"
 	}
 
 	return &TxInfo{
