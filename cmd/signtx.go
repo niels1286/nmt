@@ -49,6 +49,7 @@ var signtxCmd = &cobra.Command{
 			return
 		}
 		nulsAccount, err := getAccount()
+
 		if err != nil {
 			fmt.Println("account wrong.")
 			return
@@ -59,13 +60,10 @@ var signtxCmd = &cobra.Command{
 			return
 		}
 		tx := txprotocal.ParseTransactionByReader(seria.NewByteBufReader(txBytes, 0))
+
 		// 判断账户是否正确
 		//将签名组装到交易中
-		txSign := txprotocal.MultiAddressesSignData{
-			M:              0,
-			PubkeyList:     nil,
-			CommonSignData: txprotocal.CommonSignData{},
-		}
+		txSign := txprotocal.MultiAddressesSignData{}
 		txSign.Parse(seria.NewByteBufReader(tx.SignData, 0))
 		ok := false
 		for _, pk := range txSign.PubkeyList {
@@ -90,7 +88,6 @@ var signtxCmd = &cobra.Command{
 			fmt.Println("sign failed.")
 			return
 		}
-
 		sign := txprotocal.P2PHKSignature{
 			SignValue: signData,
 			PublicKey: nulsAccount.GetPubKeyBytes(true),
@@ -106,8 +103,8 @@ var signtxCmd = &cobra.Command{
 			fmt.Println("sign failed.")
 			return
 		}
-		//判断是否需要广播
-		if len(txSign.Signatures) >= int(txSign.M) {
+		////判断是否需要广播
+		if byte(len(txSign.Signatures)) >= txSign.M {
 			sdk := utils.GetOfficalSdk()
 
 			hash, err := sdk.BroadcastTx(resultBytes)
@@ -117,8 +114,9 @@ var signtxCmd = &cobra.Command{
 			}
 			fmt.Println("Success!\ntx hash : " + hash)
 		}
-		fmt.Println("Success!\n签名完成后的txHex:" + hex.EncodeToString(resultBytes))
+		resultHex := hex.EncodeToString(resultBytes)
 
+		fmt.Println("Success!\nNewTxHex:", resultHex)
 	},
 }
 
@@ -130,11 +128,10 @@ func getAccount() (*account.Account, error) {
 		}
 		return nulsAccount, nil
 	} else {
-
 		ks := account.KeyStore{
-			Address:             viper.GetString("Address"),
-			EncryptedPrivateKey: viper.GetString("EncryptedPrivateKey"),
-			Pubkey:              viper.GetString("Pubkey"),
+			Address:             viper.GetString("address"),
+			EncryptedPrivateKey: viper.GetString("encryptedPrivateKey"),
+			Pubkey:              viper.GetString("pubkey"),
 		}
 		return ks.GetAccount(password, cfg.DefaultChainId, cfg.DefaultAddressPrefix)
 	}
@@ -147,7 +144,8 @@ func init() {
 
 	signtxCmd.Flags().StringVarP(&prikeyHex, "prikey", "p", "", "签名使用的私钥，程序将自动验证其是否属于多签成员")
 
-	signtxCmd.PersistentFlags().StringVar(&keystore, "keystore", "", "当不是用prikey时，可以指定同目录的keystore文件名")
+	signtxCmd.PersistentFlags().StringVarP(&keystore, "keystore", "k", "", "当不是用prikey时，可以指定同目录的keystore文件名")
+
 	signtxCmd.Flags().StringVarP(&password, "password", "w", "", "使用keystore时，需要使用密码")
 
 }
@@ -156,6 +154,7 @@ func init() {
 func initConfig() {
 	if keystore != "" {
 		// Use config file from the flag.
+		viper.SetConfigType("json")
 		viper.SetConfigFile(keystore)
 	} else {
 		// Find home directory.
@@ -164,16 +163,18 @@ func initConfig() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
 		// Search config in home directory with name ".nmt" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".nmt")
+		viper.SetConfigName("json")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	err := viper.ReadInConfig()
+	if err == nil {
+		fmt.Println("Using Account from:", viper.ConfigFileUsed())
+	} else {
+		fmt.Println(err.Error())
 	}
 }

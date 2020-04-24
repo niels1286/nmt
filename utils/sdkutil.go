@@ -20,7 +20,7 @@ func GetOfficalSdk() *nuls.NulsSdk {
 
 func AssembleTransferTx(m int, pkArray []string, amount float64, remark string, to string, fromLocked byte, toLockValue uint64, nonce []byte) *txprotocal.Transaction {
 	tx := txprotocal.Transaction{
-		TxType:   txprotocal.TX_TYPE_ACCOUNT_ALIAS,
+		TxType:   txprotocal.TX_TYPE_TRANSFER,
 		Time:     uint32(time.Now().Unix()),
 		Remark:   []byte(remark),
 		Extend:   nil,

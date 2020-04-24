@@ -23,7 +23,7 @@ func TestTransfer(t *testing.T) {
 	pks = a.GetPubKeyHex(true) + "," + b.GetPubKeyHex(true) + "," + c.GetPubKeyHex(true)
 	fmt.Println(pks)
 	to = "tNULSeBaMoG1oaW1JZnh6Ly65Ttp6raeTFBfCG"
-	amount = 1
+	amount = 5000
 	remark = "中国字hahahahaha"
 	transferCmd.Run(nil, nil)
 
