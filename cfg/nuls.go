@@ -1,6 +1,6 @@
 // @Title
 // @Description
-// @Author  Niels  2020/4/18
+// @Author  Niels
 package cfg
 
 import "github.com/niels1286/nuls-go-sdk/account"
