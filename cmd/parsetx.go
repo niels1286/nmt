@@ -22,7 +22,7 @@ type TxInfo struct {
 	Remark   string
 }
 
-var TypeMap = map[int]string{
+var TypeMap = map[uint16]string{
 	1:                                 "共识奖励",
 	2:                                 "转账交易",
 	5:                                 "委托交易",
@@ -57,14 +57,14 @@ var parsetxCmd = &cobra.Command{
 			return
 		}
 		tx := txprotocal.ParseTransactionByReader(seria.NewByteBufReader(txBytes, 0))
-
+		tx.CalcHash()
 		info := getTxInfo(tx)
 		fmt.Println(info.String())
 	},
 }
 
 func getTxInfo(tx *txprotocal.Transaction) *TxInfo {
-	typeStr := TypeMap[int(tx.TxType)]
+	typeStr := TypeMap[tx.TxType]
 	txData := map[string]string{}
 	switch tx.TxType {
 	case txprotocal.TX_TYPE_DEPOSIT:
