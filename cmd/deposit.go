@@ -79,7 +79,7 @@ func init() {
 	depositCmd.MarkFlagRequired("m")
 	depositCmd.Flags().StringVarP(&pks, "publickeys", "p", "", "多签地址的成员公钥，以','分隔不同的公钥")
 	depositCmd.MarkFlagRequired("publickeys")
-	depositCmd.Flags().StringVarP(&agentHash, "agenthash", "h", "", "节点hash")
+	depositCmd.Flags().StringVarP(&agentHash, "agenthash", "s", "", "节点hash")
 	depositCmd.MarkFlagRequired("agentHash")
 	depositCmd.Flags().Float64VarP(&amount, "amount", "a", 0, "委托金额")
 	depositCmd.MarkFlagRequired("amount")
